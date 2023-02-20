@@ -3,7 +3,7 @@
 import unittest
 from hodja.search.docstores import FAISS
 from hodja.tools.search_tools import SearchTool
-from hodja.search.docstores_test import DummyEmbeddings
+from hodja.tests.docstores_test import DummyEmbeddings
 from hodja.search.documents import Document
 
 class TestSearchTool(unittest.TestCase):
