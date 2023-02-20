@@ -25,7 +25,7 @@ class OpenAIEmbeddings(Embeddings):
         self.model_name = model_name
         self.client = openai.Embedding
 
-    def embed(self, documents, batch_size=1000):
+    def embed(self, texts, batch_size=1000):
         """Call out to OpenAI's embedding endpoint for embedding search docs.
 
         Args:
@@ -36,9 +36,9 @@ class OpenAIEmbeddings(Embeddings):
             List of embeddings, one for each document.
         """
         results = []
-        for i in range(0, len(documents), batch_size):
+        for i in range(0, len(texts), batch_size):
             response = self.client.create(
-                input=documents[i : i + batch_size], engine=self.model_name
+                input=texts[i : i + batch_size], engine=self.model_name
             )
             results += [r["embedding"] for r in response["data"]]
         return results

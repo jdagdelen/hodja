@@ -28,8 +28,7 @@ class SearchTool(Tool):
 
     def add_docs(self, docs):
         """Add documents to the docstore."""
-        # TODO: update so that you don't have to add one doc at a time
-        for doc in docs:
-            self.docstore.add(doc)
+        self.docstore.add(docs)
+            
 
 

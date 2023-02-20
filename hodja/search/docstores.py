@@ -41,30 +41,32 @@ class DocStore(DocStoreBase):
     def __init__(self):
         self.documents = {}
 
-    def add(self, document):
-        """Add a document to the store.
+    def add(self, documents):
+        """Add documents to the store.
 
         Args:
-            document: Document to add to the store.
+            documents (list): Documents to add to the store.
         """
-        # check if document has an id, if not, assign one via text hash
-        if hasattr(document, "id"):
-            # if document has an id, check if it's already in the store
-            if document.id in self.documents:
-                raise ValueError(f"Document with id {document.id} already in store.")
+        for document in documents:
+            # check if document has an id, if not, assign one via text hash
+            if hasattr(document, "id"):
+                # if document has an id, check if it's already in the store
+                if document.id in self.documents:
+                    raise ValueError(f"Document with id {document.id} already in store.")
+                else:
+                    self.documents[document.id] = document
             else:
+                document.id = hash(document.text)
                 self.documents[document.id] = document
-        else:
-            document.id = hash(document.text)
-            self.documents[document.id] = document
 
-    def remove(self, document_id):
-        """Remove a document from the store.
+    def remove(self, document_ids):
+        """Remove documents from the store.
 
         Args:
-            document_id: Document id to remove from the store.
+            document_ids (list): Document ids to remove from the store.
         """
-        del self.documents[document_id]
+        for document_id in document_ids:
+            del self.documents[document_id]
 
     def get(self, document_id):
         """Get a document from the store.
@@ -92,35 +94,38 @@ class VectorStore(DocStoreBase):
         self.document_embeddings = []
         self._ids = []
 
-    def add(self, document):
-        """Run a document through the embedding_function and add to the vectorstore.
+    def add(self, documents):
+        """Get embeddings for documents and add to the vectorstore.
 
         Args:
-            document: Document to add to the vectorstore.
+            documents: Documents to add to the vectorstore.
         """
-        # check if document has an id, if not, assign one via text hash
-        if hasattr(document, "id"):
-            # if document has an id, check if it's already in the vectorstore
-            if document.id in self._ids:
-                raise ValueError(f"Document with id {document.id} already in vectorstore.")
+        for document in documents:
+            # check if document has an id, if not, assign one via text hash
+            if hasattr(document, "id"):
+                # if document has an id, check if it's already in the vectorstore
+                if document.id in self._ids:
+                    raise ValueError(f"Document with id {document.id} already in vectorstore.")
+                else:
+                    self._ids.append(document.id)
             else:
-                self._ids.append(document.id)
-        else:
-            self._ids.append(hash(document.text))
-        self.documents.append(document)
-        embedding = self.embeddings.embed([document.text])[0]
-        self.document_embeddings.append(embedding)
+                self._ids.append(hash(document.text))
+            self.documents.append(document)
+        texts = [document.text for document in documents]
+        new_document_embeddings = self.embeddings.embed(texts)
+        self.document_embeddings.extend(new_document_embeddings)
 
-    def remove(self, document_id):
-        """Remove a document from the vectorstore.
+    def remove(self, document_ids):
+        """Remove documents from the vectorstore.
 
         Args:
-            document_id: Document id to remove from the vectorstore.
+            document_ids (list): Document ids to remove from the vectorstore.
         """
-        index = self._ids.index(document_id)
-        self.documents = self.documents[:index] + self.documents[index+1:]
-        self.document_embeddings = self.document_embeddings[:index] + self.document_embeddings[index+1:]
-        self._ids = self._ids[:index] + self._ids[index+1:]
+        for document_id in document_ids:
+            index = self._ids.index(document_id)
+            self.documents = self.documents[:index] + self.documents[index+1:]
+            self._ids = self._ids[:index] + self._ids[index+1:]
+            self.document_embeddings = self.document_embeddings[:index] + self.document_embeddings[index+1:]
 
     def get(self, document_id):
         """Get a document from the vectorstore.
@@ -180,21 +185,29 @@ class FAISS(VectorStore):
             documents=documents,
         )
 
-    def add(self, document):
-        """Add a document to the vectorstore."""
-        super().add(document)
-        embedding = self.document_embeddings[-1]
-        embedding = np.array(embedding, dtype=np.float32)
-        self.index.add(embedding.reshape(1, -1))
+    def add(self, documents):
+        """Add documents to the vectorstore.
+        
+        Args:
+            document: Document to add to the vectorstore.
+        """
+        super().add(documents)
+        document_embeddings = self.document_embeddings[-len(documents):]
+        document_embeddings = np.array(document_embeddings, dtype=np.float32)
+        document_embeddings = document_embeddings.reshape(-1, self._embedding_size)
+        self.index.add(document_embeddings)
 
-    def remove(self, document_id):
-        """Remove a document from the vectorstore."""
-        super().remove(document_id)
-        # Have to rebuild FAISS index each time after removing a document
-        # This isn't ideal, maybe there's a better way?
+    def remove(self, document_ids):
+        """Remove documents from the vectorstore.
+        
+        Args:
+            document_ids (list): Document ids to remove from the vectorstore.
+        """
+        super().remove(document_ids)
         self.index = faiss.IndexFlatL2(self._embedding_size)
         self.document_embeddings = np.array(self.document_embeddings, dtype=np.float32)
-        self.index.add(self.document_embeddings)
+        if len(self.document_embeddings):
+            self.index.add(self.document_embeddings)
 
     def search(self, query, k=4):
         """Return docs most similar to query."""

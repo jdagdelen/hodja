@@ -12,8 +12,7 @@ class TestDocstore(unittest.TestCase):
         """Test the add method."""
         store = docstores.DocStore()
         document = Document(text="test", id=1)
-
-        store.add(document)
+        store.add([document])
         self.assertEqual(store.documents, {hash(document.id): document})
 
     def test_remove(self):
@@ -21,9 +20,9 @@ class TestDocstore(unittest.TestCase):
         store = docstores.DocStore()
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
-        for document in [document1, document2]:
-            store.add(document)
-        store.remove(document1.id)
+        documents = [document1, document2]
+        store.add(documents)
+        store.remove([document1.id])
         self.assertEqual(store.documents, {document2.id: document2})
 
     def test_get(self):
@@ -31,8 +30,8 @@ class TestDocstore(unittest.TestCase):
         store = docstores.DocStore()
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
-        for document in [document1, document2]:
-            store.add(document)
+        documents = [document1, document2]
+        store.add(documents)
         self.assertEqual(store.get(document1.id), document1)
 
 def cond(text):
@@ -40,8 +39,8 @@ def cond(text):
             return [0, 0, 0]
         else:
             return [1, 1, 1]
-def dummy_embeding_function(text):
-
+            
+def dummy_embedding_function(text):
     if not isinstance(text, list):
         text = [text]
     embeddings = [cond(t) for t in text]
@@ -49,10 +48,10 @@ def dummy_embeding_function(text):
 
 class DummyEmbeddings:
     def __init__(self):
-        self.embeding_function = dummy_embeding_function
+        self.embedding_function = dummy_embedding_function
 
-    def embed(self, text):
-        return dummy_embeding_function(text)
+    def embed(self, docs):
+        return dummy_embedding_function(docs)
 
 class TestFAISS(unittest.TestCase):
 
@@ -60,7 +59,7 @@ class TestFAISS(unittest.TestCase):
         """Test the add method."""
         store = docstores.FAISS(DummyEmbeddings())
         document = Document(text="test", id=1)
-        store.add(document)
+        store.add([document])
         self.assertEqual(store.documents, [document])
 
     def test_remove(self):
@@ -68,9 +67,9 @@ class TestFAISS(unittest.TestCase):
         store = docstores.FAISS(DummyEmbeddings())
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
-        for document in [document1, document2]:
-            store.add(document)
-        store.remove(document1.id)
+        documents = [document1, document2]
+        store.add(documents)
+        store.remove([document1.id])
         self.assertEqual(store.documents, [document2])
 
     def test_get(self):
@@ -78,8 +77,8 @@ class TestFAISS(unittest.TestCase):
         store = docstores.FAISS(DummyEmbeddings())
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
-        for document in [document1, document2]:
-            store.add(document)
+        documents = [document1, document2]
+        store.add(documents)
         self.assertEqual(store.get(document1.id), document1)
 
     def test_get_all(self):
@@ -87,8 +86,8 @@ class TestFAISS(unittest.TestCase):
         store = docstores.FAISS(DummyEmbeddings())
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
-        for document in [document1, document2]:
-            store.add(document)
+        documents = [document1, document2]
+        store.add(documents)
         self.assertEqual(store.get_all(), [document1, document2])
     
     def test_search(self):
@@ -97,8 +96,8 @@ class TestFAISS(unittest.TestCase):
         document1 = Document(text="test1", id=1)
         document2 = Document(text="test2", id=2)
         document3 = Document(text="test3", id=3)
-        for document in [document1, document2, document3]:
-            store.add(document)
+        documents = [document1, document2, document3]
+        store.add(documents)
         self.assertEqual(store.search(document3.text, 1), [document3])
 
 if __name__ == '__main__':

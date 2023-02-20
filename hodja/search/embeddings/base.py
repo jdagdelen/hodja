@@ -8,3 +8,4 @@ class Embeddings(ABC):
     @abstractmethod
     def embed(self, documents, **kwargs):
         """Embed documents."""
+        raise NotImplementedError
