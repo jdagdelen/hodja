@@ -1,0 +1,1 @@
+"""Agents are the heart of the Hodja framework. They sit inside Links and process the input state making use of Tools to create the output state."""
