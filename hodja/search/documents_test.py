@@ -1,7 +1,7 @@
 """Unit test for documents.py"""
 
 import unittest
-from hodja.tools.search import documents
+from hodja.search import documents
 
 class TestDocument(unittest.TestCase):
     

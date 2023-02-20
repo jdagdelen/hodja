@@ -86,10 +86,10 @@ class DocStore(DocStoreBase):
 class VectorStore(DocStoreBase):
     """A DocStore that embeds documents."""
 
-    def __init__(self, embedding_function):
-        self.embedding_function = embedding_function
+    def __init__(self, embeddings):
+        self.embeddings = embeddings
         self.documents = []
-        self.embeddings = []
+        self.document_embeddings = []
         self._ids = []
 
     def add(self, document):
@@ -108,8 +108,8 @@ class VectorStore(DocStoreBase):
         else:
             self._ids.append(hash(document.text))
         self.documents.append(document)
-        embedding = self.embedding_function([document.text])[0]
-        self.embeddings.append(embedding)
+        embedding = self.embeddings.embed([document.text])[0]
+        self.document_embeddings.append(embedding)
 
     def remove(self, document_id):
         """Remove a document from the vectorstore.
@@ -119,7 +119,7 @@ class VectorStore(DocStoreBase):
         """
         index = self._ids.index(document_id)
         self.documents = self.documents[:index] + self.documents[index+1:]
-        self.embeddings = self.embeddings[:index] + self.embeddings[index+1:]
+        self.document_embeddings = self.document_embeddings[:index] + self.document_embeddings[index+1:]
         self._ids = self._ids[:index] + self._ids[index+1:]
 
     def get(self, document_id):
@@ -143,8 +143,8 @@ class VectorStore(DocStoreBase):
 class FAISS(VectorStore):
     """Vector database that uses FAISS for fast semantic similarity search over documents."""
 
-    def __init__(self, embedding_function, index=None, documents=None):
-        super().__init__(embedding_function)
+    def __init__(self, embeddings, index=None, documents=None):
+        super().__init__(embeddings)
         if index is None:
             self.index = faiss.IndexFlatL2(self._embedding_size)
         else:
@@ -156,15 +156,15 @@ class FAISS(VectorStore):
 
     @property
     def _embedding_size(self):
-        return len(self.embedding_function(["dummy"])[0])
+        return len(self.embeddings.embed(["dummy"])[0])
         
     def save( self, save_directory):
         """Save to files."""
         faiss.write_index(self.index, "index.faiss")
         with open(os.path.join(save_directory, "documents.json"), "w") as f:
             json.dump(self.documents, f)
-        with open(os.path.join(save_directory, "embedding_function.pickle"), "wb") as f:
-            pickle.dump(self.embedding_function, f)
+        with open(os.path.join(save_directory, "embeddings.pickle"), "wb") as f:
+            pickle.dump(self.embeddings, f)
 
     @classmethod
     def load(cls, save_directory):
@@ -172,10 +172,10 @@ class FAISS(VectorStore):
         index = faiss.read_index("index.faiss")
         with open(os.path.join(save_directory, "documents.json"), "r") as f:
             documents = json.load(f)
-        with open(os.path.join(save_directory, "embedding_function.pickle"), "rb") as f:
-            embedding_function = pickle.load(f)
+        with open(os.path.join(save_directory, "embeddings.pickle"), "rb") as f:
+            embeddings = pickle.load(f)
         return cls(
-            embedding_function=embedding_function,
+            embeddings=embeddings,
             index=index,
             documents=documents,
         )
@@ -183,7 +183,7 @@ class FAISS(VectorStore):
     def add(self, document):
         """Add a document to the vectorstore."""
         super().add(document)
-        embedding = self.embeddings[-1]
+        embedding = self.document_embeddings[-1]
         embedding = np.array(embedding, dtype=np.float32)
         self.index.add(embedding.reshape(1, -1))
 
@@ -193,12 +193,12 @@ class FAISS(VectorStore):
         # Have to rebuild FAISS index each time after removing a document
         # This isn't ideal, maybe there's a better way?
         self.index = faiss.IndexFlatL2(self._embedding_size)
-        self.embeddings = np.array(self.embeddings, dtype=np.float32)
-        self.index.add(self.embeddings)
+        self.document_embeddings = np.array(self.document_embeddings, dtype=np.float32)
+        self.index.add(self.document_embeddings)
 
     def search(self, query, k=4):
         """Return docs most similar to query."""
-        query_embedding = self.embedding_function([query])[0]
+        query_embedding = self.embeddings.embed([query])[0]
         query_embedding = np.array(query_embedding, dtype=np.float32)
         D, I = self.index.search(query_embedding.reshape(1, -1), k)
         return [self.documents[i] for i in I[0]]
