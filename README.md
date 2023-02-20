@@ -1,5 +1,9 @@
+<p align="center">
+  <img src="static/nasreddin_hodja_chain.png" alt="Nasreddin Hodja inspects a chain" width="200" />
+</p>
+
 # Hodja
-Hodja framework for building [augmented language model](https://arxiv.org/abs/2302.07842)-based applications.
+Hodja is a framework for building [augmented language model](https://arxiv.org/abs/2302.07842)-based applications.
 
 ## About
 Hodja is an attempt at creating a streamlined and focused framework for building chains of transformations that use natural language as their interface. I found other projects that take a more "kitchen sink" approach such as [langchain](https://github.com/hwchase17/langchain) were hard to use and debug in practice, so I decided to create my own.
@@ -28,3 +32,4 @@ Clone this repository and in the root directory run:
 
 ## Name
 The name "Hodja" comes from "[Nasreddin Hodja](https://en.wikipedia.org/wiki/Nasreddin_)" who was a philosopher from what is now modern-day Turkey. His is known for his wit and wisdom, and is the main character of many humerous folk stories.
+
