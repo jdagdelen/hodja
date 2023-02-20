@@ -28,6 +28,12 @@ class DocStoreBase(ABC):
         """Get all documents from the store."""
         pass
 
+    @property
+    @abstractmethod
+    def __len__(self):
+        """Get the number of documents in the store."""
+        pass
+
 
 class DocStore(DocStoreBase):
     """A basic DocStore that stores documents in a dict."""
@@ -71,6 +77,10 @@ class DocStore(DocStoreBase):
     def get_all(self):
         """Get all documents from the store."""
         return self.documents.values()
+
+    def __len__(self):
+        """Get the number of documents in the store."""
+        return len(self.documents)
 
 
 class VectorStore(DocStoreBase):
@@ -124,6 +134,10 @@ class VectorStore(DocStoreBase):
     def get_all(self):
         """Get all documents from the vectorstore."""
         return self.documents
+
+    def __len__(self):
+        """Get the number of documents in the vectorstore."""
+        return len(self.documents)
 
 
 class FAISS(VectorStore):
@@ -187,7 +201,6 @@ class FAISS(VectorStore):
         query_embedding = self.embedding_function([query])[0]
         query_embedding = np.array(query_embedding, dtype=np.float32)
         D, I = self.index.search(query_embedding.reshape(1, -1), k)
-        print(self.documents)
         return [self.documents[i] for i in I[0]]
 
 

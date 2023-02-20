@@ -2,8 +2,8 @@
 
 import unittest
 
-from hodja.tools.search import docstores
-from hodja.tools.search.documents import Document
+from hodja.search import docstores
+from hodja.search.documents import Document
 
 class TestDocstore(unittest.TestCase):
     """Unit tests for the DocStore class."""
