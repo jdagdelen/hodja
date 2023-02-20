@@ -1,7 +1,7 @@
 """Wrapper around OpenAI embedding models."""
 import os
 import numpy as np
-from hodja.tools.search.embeddings.base import Embeddings
+from hodja.search.embeddings.base import Embeddings
 import openai
 
 class OpenAIEmbeddings(Embeddings):
@@ -38,7 +38,7 @@ class OpenAIEmbeddings(Embeddings):
         results = []
         for i in range(0, len(documents), batch_size):
             response = self.client.create(
-                input=documents[i : i + batch_size], engine=self.document_model_name
+                input=documents[i : i + batch_size], engine=self.model_name
             )
             results += [r["embedding"] for r in response["data"]]
         return results

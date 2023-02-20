@@ -22,7 +22,7 @@ class Document(DocumentBase):
         self.__dict__.update(kwargs)
 
     def __str__(self):
-        return f"Document({self.text}, {self.__dict__})"
+        return f"Document({self.__dict__})"
 
     def __repr__(self):
         return self.__str__()

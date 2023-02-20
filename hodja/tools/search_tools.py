@@ -23,7 +23,6 @@ class SearchTool(Tool):
         Returns:
             List of top documents.
         """
-        print(min(top_k, len(self.docstore)))
         results = self.docstore.search(query, min(top_k, len(self.docstore)))
         return results
 
