@@ -6,7 +6,7 @@
 Hodja is a framework for building [augmented language model](https://arxiv.org/abs/2302.07842)-based applications.
 
 ## About
-Hodja is an attempt at creating a streamlined and focused framework for building chains of transformations that use natural language as their interface. I found other projects that take a more "kitchen sink" approach such as [langchain](https://github.com/hwchase17/langchain) were hard to use and debug in practice, so I decided to create my own.
+Hodja is an attempt at creating a streamlined and focused framework for building chains of transformations that use natural language as their interface. I found other projects were hard to use and debug in practice, so I decided to create my own.
 
 The main concepts in Hodja are:
 
