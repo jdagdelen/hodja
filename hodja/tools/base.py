@@ -9,3 +9,9 @@ class Tool(ABC):
     @abstractmethod
     def run(self, *args, **kwargs):
         raise NotImplementedError
+
+    def __repr__(self):
+        return f"{self.name}: {self.description}"
+    
+    def __str__(self):
+        return self.__repr__()

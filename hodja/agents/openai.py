@@ -44,19 +44,14 @@ class OpenAIAgent(Agent):
         self.stop = stop
         self.streaming = streaming
 
-    def prepare_prompt_string(self, prompt, state, tools):
-        """Formats the prompts with information from state"""
-        return prompt.format(**state, tools=tools)
-
-    def __call__(self, prompt, state, tools=[]):
-        prompt_string = self.prepare_prompt_string(prompt, state, tools)
-        if len(prompt_string) + self.max_tokens > self.context_size:
+    def __call__(self, prompt):
+        if len(prompt) + self.max_tokens > self.context_size:
             raise ValueError(
-                f"Prompt length ({len(prompt_string)}) + max_tokens ({self.max_tokens}) "
+                f"Prompt length ({len(prompt)}) + max_tokens ({self.max_tokens}) "
                 f"exceeds maximum context size ({self.context_size})."
             )
         results = openai.Completion.create(
-            prompt=prompt_string,
+            prompt=prompt,
             engine=self.engine,
             temperature=self.temperature,
             max_tokens=self.max_tokens,
@@ -66,8 +61,4 @@ class OpenAIAgent(Agent):
             stop=self.stop,
             stream=self.streaming
         )
-        output = {
-            'prompt': prompt,
-            'completion': results.choices[0].text,
-        }
-        return output
+        return results.choices[0].text
