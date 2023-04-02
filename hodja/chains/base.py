@@ -5,13 +5,15 @@ Chains are the main components of Hodja. They are a collection of Links that are
 from abc import ABC, abstractmethod
 
 
-class ChainBase(ABC):
+class Chain(ABC):
     def __init__(self, name, links=[], intial_state={}):
         self.name = name
         self.state = intial_state
         self.links = links
 
-    @abstractmethod
-    def run(self):
+    def run(self, input, debug=False):
         """Run the chain by executing each link in order."""
-        raise NotImplementedError
+        self.state["input"] = input
+        for link in self.links:
+            self.state = link.run(self.state, debug=debug)
+        return self.state['output']

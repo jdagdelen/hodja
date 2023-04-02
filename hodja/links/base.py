@@ -15,4 +15,5 @@ class Link(ABC):
 
     @abstractmethod
     def run(self, input_state, **kwargs):
+        """Run the link. Return the output state."""
         raise NotImplementedError

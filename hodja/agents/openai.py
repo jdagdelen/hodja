@@ -13,11 +13,12 @@ _defaults = {
     "text-ada-001": 2048,
     "code-davinci-002": 8000,
     "code-cushman-001": 2048,
+    "gpt-3.5-turbo": 4097,
 }
 for k, v in _defaults.items():
     CONTEXT_SIZES[k] = v
 
-class OpenAIAgent(Agent):
+class OpenAIAPIAgent(Agent):
     
     def __init__(
         self, 
