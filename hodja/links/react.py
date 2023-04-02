@@ -13,11 +13,23 @@ To employ a tool, use following format:
 
 Note: You MUST use the tool's name (as provided above) in order to use a tool.
     
-Instructions: 
+Instructions
+------------
+You work in a thought-action-observation cycle. In each cycle, you:
     1. Think about the problem and how to solve it.
-    2. Perform an action. You can use one of the tools or return a final response with `RETURN[<final answer>]
+    2. Perform an action. You can use one of the tools or return a final response with `RETURN[<final answer>]. You can only use one tool at a time.
     3. Observe the result of your action. This will be the output from any tool you used, or the final answer if you returned a final answer.
     4. Repeat steps 1-3 until you have a final answer in the observation.
+
+Use the following format:
+
+    Thought: <a thought>
+    Action: <tool name>[<tool input>] (or RETURN[<final answer>])
+    Observation: <action result>
+    Thought: <a thought>
+    Action: <tool name>[<tool input>] (or RETURN[<final answer>])
+    Observation: <action result>
+    ...
 
 Example 1 (no tool needed):
     ```
