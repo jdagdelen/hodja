@@ -13,7 +13,7 @@ class SearchTool(Tool):
         super().__init__(name, description, instructions)
         self.docstore = docstore
 
-    def run(self, query, top_k=10):
+    def run(self, query, top_k=3):
         """Search for documents similar to a query.
 
         Args:
